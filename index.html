@@ -65,6 +65,180 @@
     @keyframes rainDrop { 0% { opacity: 0; transform: translateY(-10px) rotate(45deg); } 100% { opacity: 0; transform: translateY(110vh) rotate(380deg); } }
     @keyframes auraBreath { 0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.92); } 50% { opacity: 0.62; transform: translate(-50%, -50%) scale(1.06); } }
     @keyframes pulse { 0%, 100% { transform: scale(1.12); } 50% { transform: scale(1.2); } }
+/* ================= 时光轴唯美升级版 ================= */
+    .memory-timeline {
+      margin-top: 25px;
+      padding-top: 25px;
+      position: relative;
+      max-height: 280px;
+      overflow-y: auto;
+      text-align: left;
+      padding-left: 46px; /* 为左侧的时间线留出空间 */
+      /* 隐藏各个浏览器的默认滚动条，但保留滚动功能 */
+      scrollbar-width: none; 
+      -ms-overflow-style: none;
+    }
+    .memory-timeline::-webkit-scrollbar { display: none; }
+
+    /* 顶部柔和的渐变分割线（替代原来的虚线） */
+    .memory-timeline::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 141, 182, 0.4), transparent);
+    }
+
+    /* 贯穿始终的“时光轨迹”主线 */
+    .memory-timeline::after {
+      content: '';
+      position: absolute;
+      top: 45px; bottom: 0;
+      left: 20px; 
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      opacity: 0.4;
+      display: none !important;
+    }
+
+    /* 1. 卡片布局改为垂直排列，适应多张照片 */
+    .memory-node {
+      position: relative;
+      display: flex;
+      flex-direction: column; /* 改为垂直排列 */
+      align-items: flex-start;
+      margin-bottom: 22px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+      backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    /* 2. 发光小圆点对齐到标题，不再整体居中 */
+    .memory-node::before {
+      content: '';
+      position: absolute;
+      left: -32px;
+      top: 24px; /* 固定距离顶部，防止照片太多导致圆点跑偏 */
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      z-index: 2;
+      transition: all 0.3s ease;
+    }
+
+    .memory-node:hover {
+      transform: translateY(-3px) scale(1.02);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+      box-shadow: 0 12px 28px rgba(255, 116, 160, 0.15);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    .memory-node:hover::before {
+      background: var(--heart);
+      border-color: #fff;
+      transform: scale(1.3); /* 移除之前的 translateY */
+      box-shadow: 0 0 12px var(--heart);
+    }
+
+    /* 3. 头部信息区：标题和日期同行两端对齐 */
+    .memory-info { width: 100%; }
+    .memory-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .memory-info h3 { margin: 0; font-size: 1.05rem; color: var(--text-main); font-weight: 600; }
+    .memory-info p { margin: 0 0 12px 0; font-size: 0.85rem; color: var(--text-sub); line-height: 1.4; }
+
+    /* 4. 新增：唯美横向滑动相册 */
+    .memory-album {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px; /* 留出阴影空间 */
+      scrollbar-width: none; /* Firefox 隐藏滚动条 */
+      -ms-overflow-style: none; /* IE 隐藏滚动条 */
+    }
+    .memory-album::-webkit-scrollbar { display: none; } /* Chrome 隐藏滚动条 */
+
+/* 5. 相册内图片样式（完美适配长截图与宽照片） */
+    .memory-album .memory-img {
+      height: 76px;             /* 保持高度统一，维持排版整洁 */
+      width: auto;              /* 【关键修改】让宽度根据原图比例自动撑开 */
+      min-width: 76px;          /* 保证竖形照片至少是个正方形 */
+      max-width: 260px;         /* 限制最大宽度，防止极长的截图占满整行 */
+      border-radius: 12px;
+      object-fit: cover;        /* 配合最大宽度使用，超出限制时微微裁剪 */
+      object-position: left center; /* 如果长截图达到最大宽度被裁剪，优先展示左侧内容（保护头像和文字） */
+      flex-shrink: 0;           /* 防止多张图时被强制挤压变形 */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      background-color: rgba(255, 255, 255, 0.2); /* 给图片增加一点毛玻璃底色 */
+    }
+
+    .memory-info { flex: 1; }
+    .memory-info h3 { margin: 0 0 6px 0; font-size: 1.05rem; color: var(--text-main); font-weight: 600; }
+    .memory-info p { margin: 0 0 8px 0; font-size: 0.85rem; color: var(--text-sub); line-height: 1.4; }
+    
+    /* 日期标签改为更精致的半透明胶囊 */
+    .memory-date { 
+      display: inline-block;
+      font-size: 0.75rem; 
+      color: var(--text-main); 
+      background: rgba(255, 255, 255, 0.6); 
+      padding: 3px 10px; 
+      border-radius: 12px; 
+      backdrop-filter: blur(4px);
+    }
+    body.theme-night .memory-date {
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--text-sub);
+    }
+
+    /* 2. 改为在每个节点下面接力画线，这样内容有多长，线就有多长 */
+    .memory-node::after {
+      content: '';
+      position: absolute;
+      left: -26px; /* 完美对齐圆点中心 */
+      top: 38px;   /* 从圆点正下方开始 */
+      bottom: -22px; /* 向下延伸，穿过 margin 间距连接到下一个节点 */
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), rgba(255, 141, 182, 0.2));
+      z-index: 1;
+    }
+    /* 最后一个节点不需要向下延伸线条 */
+    .memory-node:last-child::after { display: none; }
+
+    /* ================= 照片点击放大（灯箱）样式 ================= */
+    #lightbox {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px); /* 背景唯美模糊 */
+      z-index: 10000;
+      display: flex; justify-content: center; align-items: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #lightbox.active {
+      opacity: 1; pointer-events: auto;
+    }
+    #lightbox img {
+      max-width: 90%; max-height: 85%;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      transform: scale(0.8);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: 3px solid rgba(255,255,255,0.8);
+    }
+    #lightbox.active img { transform: scale(1); }
+
   </style>
 </head>
 <body>
@@ -87,6 +261,7 @@
     <div class="tag" id="tag" style="text-align:center; margin:16px auto 0; width:fit-content; padding:8px 14px; border-radius:999px; background:#ffe2ee; color:#b7517c;">今日份小甜蜜</div>
     <p id="message" style="text-align:center; margin-top:20px;"></p>
     <p id="meta" style="text-align:center; margin-top:18px; font-size:0.9rem; color:var(--text-sub);"></p>
+    <div id="memory-timeline" class="memory-timeline"></div>
   </main>
 
   <script>
@@ -98,6 +273,17 @@
       "和你有关的日常，都是心动收藏。", "想和你看着日落，只谈微风和晚星。",
       "世界偶尔暗淡，但你总是带着光。", "余生很长，想和你一起把风景看透。"
     ];
+
+    // 数据照片
+    const memories = [
+      { date: "2024/06/21", title: "初次聊天", desc: "梦开始的地方", imgs: ["./images/FirstChat.jpg"] },
+      { date: "2024/06/29", title: "初次相遇", desc: "初次见面的悸动。", imgs: ["./images/meet.jpg"] },
+      { date: "2024/08/10", title: "确定关系", desc: "心动正式开始的日子。", imgs: ["./images/love.jpg"] },
+      //{ date: "2024/10/04", title: "再次相遇", desc: "在成都的街头走一走", imgs: ["./images/travel1.jpg", "./images/travel2.jpg", "./images/travel3.jpg"] },
+      //{ date: "2025/05/02", title: "西昌之行", desc: "一起去看邛海，吃西昌烧烤！", imgs: ["./images/travel1.jpg", "./images/travel2.jpg", "./images/travel3.jpg"] },
+      { date: "2026/04/04", title: "川南之旅", desc: "摘桑葚，看峡谷，享受假期！", imgs: ["./images/川南1.jpg", "./images/川南2.jpg", "./images/川南3.jpg", "./images/川南4.jpg"] }
+    ];
+
 
     const milestoneMap = {
       5: { style: "style-5", tag: "微小确幸", message: (d) => `第 ${d} 天，存起微小的欢喜。` },
@@ -128,6 +314,7 @@
     function initApp() {
       createBackgroundHearts();
       render();
+      renderMemories();
       setInterval(render, 1000);
       setInterval(() => { lineIndex = (lineIndex + 1) % romanticLines.length; render(); }, 4500);
       document.addEventListener("pointerdown", (e) => burst(e.clientX, e.clientY));
@@ -149,7 +336,46 @@
       document.body.classList.toggle("theme-night", today.getHours() >= 18 || today.getHours() < 6);
       milestone ? startRain() : stopRain();
     }
+function renderMemories() {
+      const container = document.getElementById('memory-timeline');
+      container.innerHTML = memories.map(m => {
+        // 获取图片数组
+        const images = m.imgs || (m.img ? [m.img] : []);
+        
+      // 循环生成多张图片的 HTML（加入了 onclick 和鼠标手型）
+        const imagesHtml = images.map(src => `
+          <img src="${src}" class="memory-img" alt="${m.title}" 
+               onclick="openLightbox('${src}')"
+               style="cursor: pointer;"
+               onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'56\\' height=\\'56\\'><rect width=\\'56\\' height=\\'56\\' fill=\\'%23ffe2ee\\'/><text x=\\'50%\\' y=\\'50%\\' font-size=\\'20\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' fill=\\'%23ff5f95\\'>❤</text></svg>'">
+        `).join('');
 
+        // 重新拼接卡片结构
+        return `
+        <div class="memory-node">
+          <div class="memory-info">
+            <div class="memory-header">
+              <h3>${m.title}</h3>
+              <span class="memory-date">${m.date}</span>
+            </div>
+            <p>${m.desc}</p>
+            ${images.length > 0 ? `<div class="memory-album">${imagesHtml}</div>` : ''}
+          </div>
+        </div>
+        `;
+      }).join('');
+    }
+    // --- 照片放大相关逻辑 ---
+    function openLightbox(src) {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightbox-img');
+      lbImg.src = src;
+      lb.classList.add('active');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
     // --- 视觉特效 ---
     function createBackgroundHearts() {
       for (let i = 0; i < 16; i++) {
@@ -197,5 +423,8 @@
 
     document.getElementById('password-input').addEventListener('keypress', (e) => e.key === 'Enter' && checkPassword());
   </script>
+  <div id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="放大照片">
+  </div>
 </body>
 </html>
